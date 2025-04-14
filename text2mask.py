@@ -25,7 +25,7 @@ print(f"using device: {device}")
 
 
 """define the image """
-IMAGE_PATH = "/home/yuzhench/Desktop/Course/ROB498-004/Project/Final_project/fruit.jpeg"
+IMAGE_PATH = "/home/yuzhench/Desktop/Course/ROB498-004/Project/Final_project/rgb.png"
 
 
 
@@ -38,7 +38,7 @@ predictor = SAM2ImagePredictor(sam2_model)
 
 """DINO model selection"""
 DINO_model = load_model("GroundingDINO/groundingdino/config/GroundingDINO_SwinT_OGC.py", "GroundingDINO/weights/groundingdino_swint_ogc.pth")
-TEXT_PROMPT = "apple"
+TEXT_PROMPT = "grey rectangle part"
 BOX_TRESHOLD = 0.7
 TEXT_TRESHOLD = 0.7
 
@@ -115,6 +115,9 @@ def text_to_mask(IMAGE_PATH, DINO_model, TEXT_PROMPT, BOX_TRESHOLD, TEXT_TRESHOL
     predictor.set_image(image_source)
     
     xyxy = box_convert(boxes=boxes, in_fmt="cxcywh", out_fmt="xyxy").numpy()
+
+    print("the xyxy is: ", xyxy)
+
     for box in xyxy:
         print(box)
         
