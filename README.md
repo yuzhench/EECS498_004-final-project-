@@ -12,16 +12,18 @@ output: mask of the interested target.
 
 
 
- 
-<img src="./media/rgb.png" alt="rgb_image" title="rgb_image" width="300" />
- 
-<img src="./media/depth.png" alt="depth_image" title="depth_image" width="300" />
- 
-<img src="./media/1.png" alt="image_1" title="first image" width="300" />
- 
-<img src="./media/2.png" alt="image_2" title="second image" width="300" />
+<!-- 并排显示前两张图 -->
+<p align="center">
+  <img src="./media/rgb.png" alt="rgb_image" width="300" style="display:inline-block;" />
+  <img src="./media/depth.png" alt="depth_image" width="300" style="display:inline-block;" />
+</p>
 
-<img src="./media/3.png" alt="image_3" title="third image" width="300" />
+<!-- 并排显示后三张图 -->
+<p align="center">
+  <img src="./media/1.png" alt="image_1" width="300" style="display:inline-block;" />
+  <img src="./media/2.png" alt="image_2" width="300" style="display:inline-block;" />
+  <img src="./media/3.png" alt="image_3" width="300" style="display:inline-block;" />
+</p>
 
 ### First Image
 - **Green**: Ground truth  
