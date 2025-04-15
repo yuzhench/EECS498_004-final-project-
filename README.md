@@ -12,12 +12,16 @@ output: mask of the interested target.
 
 
 
-![rgb_image](./media/rgb.png "rgb_iamge")
-![depth_image](./media/depth.png "depth_iamge")
+ 
+<img src="./media/rgb.png" alt="rgb_image" title="rgb_image" width="300" />
+ 
+<img src="./media/depth.png" alt="depth_image" title="depth_image" width="300" />
+ 
+<img src="./media/1.png" alt="image_1" title="first image" width="300" />
+ 
+<img src="./media/2.png" alt="image_2" title="second image" width="300" />
 
-![image_1](./media/1.png "first image")
-![image_2](./media/2.png "second image")
-![image_3](./media/3.png "third image")
+<img src="./media/3.png" alt="image_3" title="third image" width="300" />
 
 ### First Image
 - **Green**: Ground truth  
