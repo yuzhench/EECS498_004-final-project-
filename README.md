@@ -1,3 +1,20 @@
+RGB image --> text2mask.py --> mask of the interested object 
+
+Depth image & mask --> depth2pointcloud.py --> dense point cloud of the interested object 
+
+dense point cloud --> keypointPCL.cpp --> key point of the point cloud 
+
+ground truth target mesh file --> mesh2PCD.py --> dense point cloud of the ground truth target 
+
+dense point cloud of the ground truth target --> keypointPCL.cpp --> key point cloud of the ground truth target
+
+key point of the target & ground truth key point of the target --> PCDmatch.py (rough R, t & precise R, t) --> global R, t
+
+
+todo: 
+nornal_vector_render
+
+
 # depth2pointcloud.py 
 input: depth image \
 output: pointcloud (o3d) 
