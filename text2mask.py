@@ -25,26 +25,28 @@ print(f"using device: {device}")
 
 
 """define the image """
-IMAGE_PATH = "/home/yuzhench/Desktop/Course/ROB498-004/Project/Final_project/rgb.png"
+IMAGE_PATH = "/home/anranli/Downloads/testimage.jpg"
 
 
 
 """sam2 model selection"""
-sam2_checkpoint = "sam2/checkpoints/sam2.1_hiera_large.pt"
+sam2_checkpoint = "../sam2/checkpoints/sam2.1_hiera_large.pt"
 model_cfg = "configs/sam2.1/sam2.1_hiera_l.yaml"
 
 sam2_model = build_sam2(model_cfg, sam2_checkpoint, device=device)
 predictor = SAM2ImagePredictor(sam2_model)
 
 """DINO model selection"""
-DINO_model = load_model("GroundingDINO/groundingdino/config/GroundingDINO_SwinT_OGC.py", "GroundingDINO/weights/groundingdino_swint_ogc.pth")
-TEXT_PROMPT = "grey rectangle part"
-BOX_TRESHOLD = 0.7
-TEXT_TRESHOLD = 0.7
+DINO_model = load_model("../GroundingDINO/groundingdino/config/GroundingDINO_SwinT_OGC.py", "../GroundingDINO/weights/groundingdino_swint_ogc.pth")
+TEXT_PROMPT = "white square frame with handle"
+BOX_TRESHOLD = 0.6
+TEXT_TRESHOLD = 0.6
 
 
 
 """helper functions"""
+
+
 def get_center(bbox, H, W):
     
     x_min, y_min, x_max, y_max = bbox
@@ -97,10 +99,7 @@ def show_masks(image, masks, scores, point_coords=None, box_coords=None, input_l
         plt.axis('off')
         plt.show()
 
-
-
-
-
+  
 def text_to_mask(IMAGE_PATH, DINO_model, TEXT_PROMPT, BOX_TRESHOLD, TEXT_TRESHOLD):
     image_source, image = load_image(IMAGE_PATH)
     boxes, logits, phrases = predict(
@@ -111,40 +110,48 @@ def text_to_mask(IMAGE_PATH, DINO_model, TEXT_PROMPT, BOX_TRESHOLD, TEXT_TRESHOL
         text_threshold=TEXT_TRESHOLD
     )
 
-
     predictor.set_image(image_source)
     
     xyxy = box_convert(boxes=boxes, in_fmt="cxcywh", out_fmt="xyxy").numpy()
-
     print("the xyxy is: ", xyxy)
-
+    
+    if len(xyxy) == 0:
+        print("No objects detected with the given prompt and thresholds.")
+        return
+    
+    H, W = image_source.shape[:2]
+    print(f"Image dimensions: H={H}, W={W}")
+    
     for box in xyxy:
-        print(box)
+        print("Normalized box:", box)
         
-        H = image_source.shape[0]
-        W = image_source.shape[1]
-        print(f"H is{H}, W is {W}")
-        cx, cy = get_center(box, H, W)
-        print("cx, cy is: ", cx, cy)
- 
+        x_min_px = int(box[0] * W)
+        y_min_px = int(box[1] * H)
+        x_max_px = int(box[2] * W)
+        y_max_px = int(box[3] * H)
+        
+        input_box = np.array([x_min_px, y_min_px, x_max_px, y_max_px])
+        print("Pixel box:", input_box)
+        
+        input_box = input_box[None, :]
+        
+        masks, scores, logits = predictor.predict(
+            point_coords=None,
+            point_labels=None,
+            box=input_box,
+            multimask_output=True
+        )
+        
+        print(f"Mask scores: {scores}")
+        
+        sorted_ind = np.argsort(scores)[::-1]
+        masks = masks[sorted_ind]
+        scores = scores[sorted_ind]
+        logits = logits[sorted_ind]
 
-    input_point = np.array([[cx, cy]])
-    input_label = np.array([1])
-
-    masks, scores, logits = predictor.predict(
-        point_coords=input_point,
-        point_labels=input_label,
-        multimask_output=True,
-    )
-    sorted_ind = np.argsort(scores)[::-1]
-    masks = masks[sorted_ind]
-    scores = scores[sorted_ind]
-    logits = logits[sorted_ind]
-
-    print(masks.shape)
-  
-
-    show_masks(image_source, masks, scores, point_coords=input_point, input_labels=input_label, borders=True)
+        print(f"Masks shape: {masks.shape}")
+        
+        show_masks(image_source, masks, scores, box_coords=input_box[0], borders=True)
 
 if __name__ == "__main__":
     text_to_mask(IMAGE_PATH, DINO_model, TEXT_PROMPT, BOX_TRESHOLD, TEXT_TRESHOLD)
