@@ -77,7 +77,7 @@ def get_mask():
     
 
     """load in the image"""
-    image = Image.open('/home/yuzhench/Desktop/Course/ROB498-004/Project/Final_project/rgb.png')
+    image = Image.open('/home/anranli/Documents/DeepL/Final/Final Project Demo/output_masks/mask_00010.jpg')
     image = np.array(image.convert("RGB"))
 
     """show the image""" # for testing

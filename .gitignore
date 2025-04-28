@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.pyc
+
+# Build files
+build/
+
+# C++ build artifacts
+*.o
+*.so
+*.a
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# Project folders you don't want to track
+Final Project Demo/
+GroundingDINO/
+sam2/
+folder/
+
+# Backup and temp files
+*.log
+*.tmp
+
+# Large model files
+*.pth
+*.onnx
+*.pt
+
+# Misc
+*.DS_Store

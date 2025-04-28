@@ -45,8 +45,8 @@ double computeCloudResolution(const pcl::PointCloud<pcl::PointXYZ>::Ptr &cloud)
 int main(int argc, char** argv)
 {
     // If you want to pass parameters via the command line, you can change it to read from argv[1], etc.
-    std::string input_pcd = "../rectangle.pcd";  
-    std::string output_pcd = "example_iss_rectangle_keypoints.pcd";
+    std::string input_pcd = "/home/anranli/Documents/DeepL/Final/Final Project Demo/output_pointclouds/cloud_00380.pcd";  
+    std::string output_pcd = "example_iss_rectangle_keypoints00380.pcd";
 
     // 1. Define point cloud type and create pointers
     typedef pcl::PointXYZ PointT;
@@ -76,17 +76,17 @@ int main(int argc, char** argv)
     iss_detector.setInputCloud(cloud_in);
 
     // ---- Adjust the following parameters based on actual cloud size/resolution ----
-    double model_resolution = 1.4;  // Approximate resolution, adjust for your data
+    double model_resolution = .28;  // Approximate resolution, adjust for your data
 
     // salient_radius is usually 6~8 times model_resolution
-    iss_detector.setSalientRadius(6 * model_resolution);
+    iss_detector.setSalientRadius(4* model_resolution);
 
     // non_max_radius is usually 4~5 times model_resolution
-    iss_detector.setNonMaxRadius(4 * model_resolution);
+    iss_detector.setNonMaxRadius(1 * model_resolution);
 
     // These two thresholds determine filtering standards for the covariance matrix eigenvalue ratios
-    iss_detector.setThreshold21(0.975);
-    iss_detector.setThreshold32(0.975);
+    iss_detector.setThreshold21(0.999);
+    iss_detector.setThreshold32(0.999);
 
     // Minimum number of neighbors in the neighborhood (exclude overly sparse areas)
     iss_detector.setMinNeighbors(5);

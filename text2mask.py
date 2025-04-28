@@ -11,7 +11,7 @@ from PIL import Image
 import numpy as np
 
 from torchvision.ops import box_convert
-
+import argparse
 
 
 """device selection"""
@@ -25,7 +25,7 @@ print(f"using device: {device}")
 
 
 """define the image """
-IMAGE_PATH = "/home/anranli/Downloads/testimage.jpg"
+IMAGE_PATH = "/home/anranli/Documents/DeepL/Final/Final Project Demo/frames/00036.jpg"
 
 
 
@@ -39,8 +39,8 @@ predictor = SAM2ImagePredictor(sam2_model)
 """DINO model selection"""
 DINO_model = load_model("../GroundingDINO/groundingdino/config/GroundingDINO_SwinT_OGC.py", "../GroundingDINO/weights/groundingdino_swint_ogc.pth")
 TEXT_PROMPT = "white square frame with handle"
-BOX_TRESHOLD = 0.6
-TEXT_TRESHOLD = 0.6
+BOX_TRESHOLD = 0.2
+TEXT_TRESHOLD = 0.2
 
 
 
@@ -100,58 +100,197 @@ def show_masks(image, masks, scores, point_coords=None, box_coords=None, input_l
         plt.show()
 
   
-def text_to_mask(IMAGE_PATH, DINO_model, TEXT_PROMPT, BOX_TRESHOLD, TEXT_TRESHOLD):
-    image_source, image = load_image(IMAGE_PATH)
+# def text_to_mask(IMAGE_PATH, DINO_model, TEXT_PROMPT, BOX_TRESHOLD, TEXT_TRESHOLD):
+#     image_source, image = load_image(IMAGE_PATH)
+#     boxes, logits, phrases = predict(
+#         model=DINO_model,
+#         image=image,
+#         caption=TEXT_PROMPT,
+#         box_threshold=BOX_TRESHOLD,
+#         text_threshold=TEXT_TRESHOLD
+#     )
+
+#     predictor.set_image(image_source)
+    
+#     xyxy = box_convert(boxes=boxes, in_fmt="cxcywh", out_fmt="xyxy").numpy()
+#     print("the xyxy is: ", xyxy)
+    
+#     if len(xyxy) == 0:
+#         print("No objects detected with the given prompt and thresholds.")
+#         return
+    
+#     H, W = image_source.shape[:2]
+#     print(f"Image dimensions: H={H}, W={W}")
+    
+#     for box in xyxy:
+#         print("Normalized box:", box)
+        
+#         x_min_px = int(box[0] * W)
+#         y_min_px = int(box[1] * H)
+#         x_max_px = int(box[2] * W)
+#         y_max_px = int(box[3] * H)
+        
+#         input_box = np.array([x_min_px, y_min_px, x_max_px, y_max_px])
+#         print("Pixel box:", input_box)
+        
+#         input_box = input_box[None, :]
+        
+#         masks, scores, logits = predictor.predict(
+#             point_coords=None,
+#             point_labels=None,
+#             box=input_box,
+#             multimask_output=True
+#         )
+        
+#         print(f"Mask scores: {scores}")
+        
+#         sorted_ind = np.argsort(scores)[::-1]
+#         masks = masks[sorted_ind]
+#         scores = scores[sorted_ind]
+#         logits = logits[sorted_ind]
+
+#         print(f"Masks shape: {masks.shape}")
+        
+#         show_masks(image_source, masks, scores, box_coords=input_box[0], borders=True)
+
+# if __name__ == "__main__":
+#     text_to_mask(IMAGE_PATH, DINO_model, TEXT_PROMPT, BOX_TRESHOLD, TEXT_TRESHOLD)
+
+
+
+# def save_mask_output(image_path, binary_mask_path, DINO_model, TEXT_PROMPT, BOX_TRESHOLD, TEXT_TRESHOLD):
+#     image_tensor_input, image_tensor = load_image(image_path)  # <- Fix here!
+
+#     boxes, logits, phrases = predict(
+#         model=DINO_model,
+#         image=image_tensor,
+#         caption=TEXT_PROMPT,
+#         box_threshold=BOX_TRESHOLD,
+#         text_threshold=TEXT_TRESHOLD
+#     )
+
+#     predictor.set_image(image_tensor_input)
+#     xyxy = box_convert(boxes=boxes, in_fmt="cxcywh", out_fmt="xyxy").numpy()
+
+#     if len(xyxy) == 0:
+#         print("No objects detected.")
+#         return
+
+#     H, W = image_tensor_input.shape[:2]
+#     for box in xyxy:
+#         x_min_px = int(box[0] * W)
+#         y_min_px = int(box[1] * H)
+#         x_max_px = int(box[2] * W)
+#         y_max_px = int(box[3] * H)
+#         input_box = np.array([x_min_px, y_min_px, x_max_px, y_max_px])[None, :]
+
+#         masks, scores, _ = predictor.predict(
+#             point_coords=None,
+#             point_labels=None,
+#             box=input_box,
+#             multimask_output=True
+#         )
+
+#         sorted_ind = np.argsort(scores)[::-1]
+#         masks = masks[sorted_ind]
+#         scores = scores[sorted_ind]
+
+#         binary_mask = masks[0].astype(np.uint8) * 255  # Convert to 8-bit format
+#         mask_img = Image.fromarray(binary_mask)
+#         mask_img.save(binary_mask_path)
+        
+        
+#         # # Save top-1 mask visualization
+#         # plt.figure(figsize=(10, 10))
+#         # plt.imshow(image_tensor_input)
+#         # show_mask(masks[0], plt.gca())
+#         # show_box(input_box[0], plt.gca())
+#         # plt.axis("off")
+#         # plt.savefig(output_path)
+#         # plt.close()
+
+
+# if __name__ == "__main__":
+#     parser = argparse.ArgumentParser()
+#     parser.add_argument("--input", required=True, help="Path to input image")
+#     # parser.add_argument("--output", required=True, help="Path to save output mask image")
+#     parser.add_argument("--binary_mask", required=True, help="Path to save binary mask image")
+#     args = parser.parse_args()
+
+#     input_path = args.input
+#     # output_path = args.output
+#     binary_mask_path = args.binary_mask
+
+
+#     image = cv2.imread(input_path)
+#     if image is None:
+#         print(f"❌ Failed to load image: {input_path}")
+#         exit(1)
+#     image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+#     save_mask_output(input_path, binary_mask_path, DINO_model, TEXT_PROMPT, BOX_TRESHOLD, TEXT_TRESHOLD)
+
+
+def save_mask_output(image_path, binary_mask_path, DINO_model, TEXT_PROMPT, BOX_TRESHOLD, TEXT_TRESHOLD):
+    image_tensor_input, image_tensor = load_image(image_path)
+
     boxes, logits, phrases = predict(
         model=DINO_model,
-        image=image,
+        image=image_tensor,
         caption=TEXT_PROMPT,
         box_threshold=BOX_TRESHOLD,
         text_threshold=TEXT_TRESHOLD
     )
 
-    predictor.set_image(image_source)
-    
+    predictor.set_image(image_tensor_input)
     xyxy = box_convert(boxes=boxes, in_fmt="cxcywh", out_fmt="xyxy").numpy()
-    print("the xyxy is: ", xyxy)
-    
+
     if len(xyxy) == 0:
-        print("No objects detected with the given prompt and thresholds.")
-        return
-    
-    H, W = image_source.shape[:2]
-    print(f"Image dimensions: H={H}, W={W}")
-    
+        print("No objects detected.")
+        return False
+
+    H, W = image_tensor_input.shape[:2]
     for box in xyxy:
-        print("Normalized box:", box)
-        
         x_min_px = int(box[0] * W)
         y_min_px = int(box[1] * H)
         x_max_px = int(box[2] * W)
         y_max_px = int(box[3] * H)
-        
-        input_box = np.array([x_min_px, y_min_px, x_max_px, y_max_px])
-        print("Pixel box:", input_box)
-        
-        input_box = input_box[None, :]
-        
-        masks, scores, logits = predictor.predict(
+        input_box = np.array([x_min_px, y_min_px, x_max_px, y_max_px])[None, :]
+
+        masks, scores, _ = predictor.predict(
             point_coords=None,
             point_labels=None,
             box=input_box,
             multimask_output=True
         )
-        
-        print(f"Mask scores: {scores}")
-        
+
         sorted_ind = np.argsort(scores)[::-1]
         masks = masks[sorted_ind]
-        scores = scores[sorted_ind]
-        logits = logits[sorted_ind]
+        binary_mask = masks[0].astype(bool)
+        np.save(binary_mask_path, binary_mask)
+        return True  # Successfully saved
 
-        print(f"Masks shape: {masks.shape}")
-        
-        show_masks(image_source, masks, scores, box_coords=input_box[0], borders=True)
+    return False  # Shouldn't reach here if we found at least one box
 
 if __name__ == "__main__":
-    text_to_mask(IMAGE_PATH, DINO_model, TEXT_PROMPT, BOX_TRESHOLD, TEXT_TRESHOLD)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--input", required=True, help="Path to input image")
+    parser.add_argument("--binary_mask", required=True, help="Path to save binary mask image")
+    args = parser.parse_args()
+
+    input_path = args.input
+    binary_mask_path = args.binary_mask
+
+    image = cv2.imread(input_path)
+    if image is None:
+        print(f"❌ Failed to load image: {input_path}")
+        exit(1)
+    
+    # Call the function with correct parameters
+    success = save_mask_output(input_path, binary_mask_path, DINO_model, TEXT_PROMPT, BOX_TRESHOLD, TEXT_TRESHOLD)
+    
+    if success:
+        print(f"✅ Successfully saved binary mask to: {binary_mask_path}")
+    else:
+        print(f"❌ Failed to create mask for: {input_path}")
+        exit(1)
